@@ -1,9 +1,21 @@
 import React, { useEffect, useState } from "react";
 import "./App.css";
 
+const API_URL = "http://localhost:5089/api/Contact";
+
 function App() {
   const [darkMode, setDarkMode] = useState(false);
   const [text, setText] = useState("");
+
+  // Contact form states
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    message: "",
+  });
+
+  const [sending, setSending] = useState(false);
+  const [formMessage, setFormMessage] = useState("");
 
   const fullText = "Full Stack Developer";
 
@@ -28,6 +40,61 @@ function App() {
     document.getElementById(id)?.scrollIntoView({
       behavior: "smooth",
     });
+  };
+
+  // Handle input changes
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+
+    setFormData((previousData) => ({
+      ...previousData,
+      [name]: value,
+    }));
+  };
+
+  // Submit contact form
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+
+    setSending(true);
+    setFormMessage("");
+
+    try {
+      const response = await fetch(API_URL, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(
+          data?.message || "Unable to submit your message."
+        );
+      }
+
+      setFormMessage(
+        data.message || "Your message has been submitted successfully."
+      );
+
+      // Clear form after successful submission
+      setFormData({
+        name: "",
+        email: "",
+        message: "",
+      });
+    } catch (error) {
+      console.error("Contact form error:", error);
+
+      setFormMessage(
+        "Unable to connect to backend. Please make sure the backend is running."
+      );
+    } finally {
+      setSending(false);
+    }
   };
 
   return (
@@ -69,7 +136,6 @@ function App() {
 
         </div>
       </header>
-
 
       {/* ================= HERO ================= */}
       <main>
@@ -147,7 +213,6 @@ function App() {
 
             </div>
 
-
             {/* Developer Card */}
             <div className="hero-visual">
 
@@ -218,7 +283,6 @@ function App() {
           </div>
         </section>
 
-
         {/* ================= ABOUT ================= */}
         <section id="about" className="section">
 
@@ -275,7 +339,6 @@ function App() {
 
               </div>
 
-
               <div className="about-card">
 
                 <div className="about-card-icon">
@@ -321,7 +384,6 @@ function App() {
 
         </section>
 
-
         {/* ================= SKILLS ================= */}
         <section id="skills" className="section skills-section">
 
@@ -337,7 +399,6 @@ function App() {
               Technologies and tools I use to build modern
               full-stack applications.
             </p>
-
 
             <div className="skills-grid">
 
@@ -356,7 +417,6 @@ function App() {
                 </div>
               </div>
 
-
               <div className="skill-card">
                 <div className="skill-icon dotnet-icon">C#</div>
 
@@ -372,7 +432,6 @@ function App() {
                 </div>
               </div>
 
-
               <div className="skill-card">
                 <div className="skill-icon sql-icon">DB</div>
 
@@ -387,7 +446,6 @@ function App() {
                   <div className="skill-percent">88%</div>
                 </div>
               </div>
-
 
               <div className="skill-card">
                 <div className="skill-icon api-icon">API</div>
@@ -406,7 +464,6 @@ function App() {
 
             </div>
 
-
             <div className="technology-list">
 
               <span>JavaScript</span>
@@ -421,7 +478,6 @@ function App() {
           </div>
 
         </section>
-
 
         {/* ================= PROJECTS ================= */}
         <section id="projects" className="section">
@@ -438,7 +494,6 @@ function App() {
               A selection of projects I've built using modern
               development technologies.
             </p>
-
 
             <div className="project-grid">
 
@@ -470,7 +525,6 @@ function App() {
 
               </article>
 
-
               <article className="project-card">
 
                 <div className="project-top">
@@ -497,7 +551,6 @@ function App() {
                 </div>
 
               </article>
-
 
               <article className="project-card">
 
@@ -533,7 +586,6 @@ function App() {
 
         </section>
 
-
         {/* ================= CONTACT ================= */}
         <section id="contact" className="section contact-section">
 
@@ -557,20 +609,24 @@ function App() {
 
                   <div>
                     <span>✉</span>
+
                     <div>
                       <small>Email</small>
+
                       <strong>
-                        your.email@example.com
+                        aryanpatel769892@gmail.com
                       </strong>
                     </div>
                   </div>
 
                   <div>
                     <span>⌘</span>
+
                     <div>
                       <small>GitHub</small>
+
                       <strong>
-                        github.com/
+                        github.com/aryanpatel107
                       </strong>
                     </div>
                   </div>
@@ -579,33 +635,42 @@ function App() {
 
               </div>
 
-
+              {/* CONTACT FORM */}
               <form
                 className="contact-form"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  alert("Thank you! Your message has been submitted.");
-                }}
+                onSubmit={handleSubmit}
               >
 
                 <div className="input-row">
 
                   <div className="input-group">
+
                     <label>Your Name</label>
+
                     <input
                       type="text"
+                      name="name"
                       placeholder="Aryan Patel"
+                      value={formData.name}
+                      onChange={handleChange}
                       required
                     />
+
                   </div>
 
                   <div className="input-group">
+
                     <label>Email Address</label>
+
                     <input
                       type="email"
+                      name="email"
                       placeholder="aryanpatel769892@gmail.com"
+                      value={formData.email}
+                      onChange={handleChange}
                       required
                     />
+
                   </div>
 
                 </div>
@@ -615,17 +680,30 @@ function App() {
                   <label>Message</label>
 
                   <textarea
+                    name="message"
                     placeholder="Tell me about your project..."
                     rows="6"
+                    value={formData.message}
+                    onChange={handleChange}
                     required
                   ></textarea>
 
                 </div>
 
-                <button type="submit" className="submit-btn">
-                  Send Message
+                <button
+                  type="submit"
+                  className="submit-btn"
+                  disabled={sending}
+                >
+                  {sending ? "Sending..." : "Send Message"}
                   <span>→</span>
                 </button>
+
+                {formMessage && (
+                  <p className="form-message">
+                    {formMessage}
+                  </p>
+                )}
 
               </form>
 
@@ -637,13 +715,13 @@ function App() {
 
       </main>
 
-
       {/* ================= FOOTER ================= */}
       <footer className="footer">
 
         <div className="container footer-container">
 
           <div>
+
             <div className="logo">
               Aryan<span>.dev</span>
             </div>
@@ -651,15 +729,24 @@ function App() {
             <p>
               Building digital experiences with code.
             </p>
+
           </div>
 
           <div className="footer-links">
 
-            <a href="https://github.com/aryanpatel107" target="_blank" rel="noreferrer">
+            <a
+              href="https://github.com/aryanpatel107"
+              target="_blank"
+              rel="noreferrer"
+            >
               GitHub
             </a>
 
-            <a href="https://www.linkedin.com/in/aryan-patel-79732b378?utm_source=share&utm_campaign=share_via&utm_content=profile&utm_medium=android_app" target="_blank" rel="noreferrer">
+            <a
+              href="https://www.linkedin.com/in/aryan-patel-79732b378"
+              target="_blank"
+              rel="noreferrer"
+            >
               LinkedIn
             </a>
 
